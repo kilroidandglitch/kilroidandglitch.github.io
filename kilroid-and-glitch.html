@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kilroid & Glitch</title>
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+    background: black;
+    color: white;
+}
+
+/* SCENE */
+.scene {
+    width: 100vw;
+    height: 100vh;
+    background: url('scene.png') center/cover no-repeat;
+    position: relative;
+}
+
+/* OVERLAY */
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0,0,0,0.2), rgba(0,0,0,0.8));
+}
+
+/* TITLE */
+.title {
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 3.5em;
+    color: #00f0ff;
+    text-shadow: 0 0 25px #00f0ff;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #00f0ff; }
+    to { text-shadow: 0 0 30px #00f0ff; }
+}
+
+/* PARTICLES */
+.particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: #00f0ff;
+    border-radius: 50%;
+    animation: float linear infinite;
+}
+
+@keyframes float {
+    from { transform: translateY(100vh); opacity: 0; }
+    to { transform: translateY(-10vh); opacity: 1; }
+}
+
+/* BALL */
+.ball {
+    position: absolute;
+    bottom: 80px;
+    right: 120px;
+    width: 90px;
+    animation: bounce 1s infinite ease-in-out;
+}
+
+@keyframes bounce {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-140px); }
+    100% { transform: translateY(0); }
+}
+
+/* SPEECH */
+.speech {
+    position: absolute;
+    background: white;
+    color: black;
+    padding: 14px;
+    border-radius: 14px;
+    max-width: 260px;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+#kSpeech { left: 6%; bottom: 260px; }
+#gSpeech { right: 6%; bottom: 300px; }
+
+/* CHAT */
+.chatbox {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.85);
+    padding: 10px;
+    display: flex;
+}
+
+.chatbox input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    font-size: 16px;
+}
+
+.chatbox button {
+    padding: 12px;
+    background: #00f0ff;
+    border: none;
+    font-weight: bold;
+}
+
+/* CONTROLS */
+.controls {
+    position: absolute;
+    top: 90px;
+    right: 20px;
+}
+
+.controls button {
+    display: block;
+    margin: 8px;
+    padding: 10px;
+    background: black;
+    color: #00f0ff;
+    border: 1px solid #00f0ff;
+    cursor: pointer;
+}
+
+/* PULSE EFFECT */
+.pulse {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 2px solid #00f0ff;
+    animation: pulse 3s infinite;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.5; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="scene" id="scene">
+
+    <div class="overlay"></div>
+    <div class="title">Kilroid & Glitch</div>
+    <div class="pulse"></div>
+
+    <!-- BALL -->
+    <img class="ball" src="https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png">
+
+    <!-- SPEECH -->
+    <div id="kSpeech" class="speech">...</div>
+    <div id="gSpeech" class="speech">...</div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+        <button onclick="toggleMusic()">🎵 Music</button>
+        <button onclick="listen()">🎤 Talk</button>
+    </div>
+
+    <!-- CHAT -->
+    <div class="chatbox">
+        <input id="input" placeholder="Talk to Kilroid & Glitch...">
+        <button onclick="talk()">Send</button>
+    </div>
+
+</div>
+
+<script>
+
+/* PARTICLES */
+for (let i = 0; i < 60; i++) {
+    let p = document.createElement("div");
+    p.className = "particle";
+    p.style.left = Math.random() * 100 + "%";
+    p.style.animationDuration = (3 + Math.random() * 6) + "s";
+    document.getElementById("scene").appendChild(p);
+}
+
+/* SPEECH */
+function speak(char, text) {
+    let box = char === "k" ? kSpeech : gSpeech;
+    box.innerText = text;
+
+    let msg = new SpeechSynthesisUtterance(text);
+
+    if (char === "k") {
+        msg.pitch = 1.5;
+        msg.rate = 1.1;
+    } else {
+        msg.pitch = 0.7;
+        msg.rate = 0.9;
+    }
+
+    speechSynthesis.speak(msg);
+}
+
+/* INTRO */
+window.onload = () => {
+    setTimeout(() => speak("k", "Yo Glitch… we got a visitor!"), 600);
+    setTimeout(() => speak("g", "Confirmed. Human presence detected."), 2200);
+    setTimeout(() => speak("k", "Ayy! You ready to learn or ball?"), 3800);
+};
+
+/* RESPONSES */
+function respond(input) {
+
+    if (input.includes("play")) {
+        speak("k", "Let’s run it!");
+        speak("g", "Game mode activated.");
+    }
+    else if (input.includes("learn")) {
+        speak("g", "Initiating learning protocol.");
+        speak("k", "We got you!");
+    }
+    else if (input.includes("who")) {
+        speak("k", "I’m Kilroid. I run the court.");
+        speak("g", "And I am Glitch. I analyze everything.");
+    }
+    else {
+        speak("k", "Hmm… try that again.");
+    }
+}
+
+/* INPUT */
+function talk() {
+    let input = document.getElementById("input").value.toLowerCase();
+    if (!input) return;
+    respond(input);
+    document.getElementById("input").value = "";
+}
+
+/* VOICE */
+function listen() {
+    let rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    rec.onresult = e => {
+        let text = e.results[0][0].transcript.toLowerCase();
+        respond(text);
+    };
+    rec.start();
+}
+
+/* MUSIC */
+let audio = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+audio.loop = true;
+
+function toggleMusic() {
+    if (audio.paused) audio.play();
+    else audio.pause();
+}
+
+/* RANDOM LIFE */
+setInterval(() => {
+    let lines = [
+        ["k", "Yo I’m getting better every day."],
+        ["g", "Progress confirmed."],
+        ["k", "Did you SEE that shot?!"],
+        ["g", "Statistically impressive."]
+    ];
+    let l = lines[Math.floor(Math.random() * lines.length)];
+    speak(l[0], l[1]);
+}, 12000);
+
+</script>
+
+</body>
+</html>
