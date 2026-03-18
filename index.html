@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KILROID & GLITCH // SYSTEM INTERFACE</title>
+
+<style>
+body {
+  margin:0;
+  overflow:hidden;
+  background:black;
+  font-family:Arial;
+  color:#0ff;
+}
+
+/* Background */
+#bg {
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:radial-gradient(circle at center, #111 0%, #000 100%);
+}
+
+/* Subtle crowd overlay */
+#crowd {
+  position:fixed;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.02) 0px,
+    rgba(255,255,255,0.02) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+
+/* Hero image */
+#scene {
+  position:absolute;
+  width:60%;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  animation:float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,100%{transform:translate(-50%,-50%) translateY(0);}
+  50%{transform:translate(-50%,-50%) translateY(-20px);}
+}
+
+/* Electric pulses */
+#scene::after {
+  content:"";
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:radial-gradient(circle, rgba(0,255,255,0.2), transparent 60%);
+  animation:pulse 3s infinite;
+}
+@keyframes pulse {
+  0%,100%{opacity:0.2;}
+  50%{opacity:0.6;}
+}
+
+/* OLED hoodie effect */
+.oled {
+  position:absolute;
+  width:120px;
+  height:60px;
+  top:55%;
+  left:48%;
+  transform:translate(-50%,-50%);
+  background:linear-gradient(90deg, #0ff, #f0f, #0ff);
+  background-size:200% 100%;
+  animation:oledShift 3s linear infinite;
+  opacity:0.4;
+  border-radius:10px;
+}
+@keyframes oledShift {
+  0%{background-position:0%;}
+  100%{background-position:200%;}
+}
+
+/* Chat UI */
+#chat {
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:90%;
+  max-width:600px;
+  background:rgba(0,0,0,0.7);
+  border:2px solid #0ff;
+  padding:15px;
+  border-radius:20px;
+}
+
+#input, #api {
+  width:100%;
+  margin:5px 0;
+  padding:10px;
+  background:#111;
+  border:none;
+  color:#0ff;
+}
+
+#send {
+  width:100%;
+  padding:10px;
+  background:#0ff;
+  border:none;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+/* System text */
+#systemMsg {
+  position:fixed;
+  top:10px;
+  width:100%;
+  text-align:center;
+  font-size:14px;
+  opacity:0.6;
+  animation:glitch 2s infinite;
+}
+
+@keyframes glitch {
+  0%{text-shadow:1px 1px #0ff;}
+  50%{text-shadow:-1px -1px #f0f;}
+  100%{text-shadow:1px -1px #0ff;}
+}
+</style>
+</head>
+
+<body>
+
+<div id="bg"></div>
+<div id="crowd"></div>
+
+<div id="systemMsg">User detected...</div>
+
+<img id="scene" src="YOUR_IMAGE_HERE">
+
+<div class="oled"></div>
+
+<div id="chat">
+  <input id="api" placeholder="API key">
+  <input id="input" placeholder="Talk to them...">
+  <button id="send">Send</button>
+  <div id="response">Kilroid: We see you. Glitch: Unfortunately.</div>
+</div>
+
+<script>
+
+/* Ambient sound (crowd + hum) */
+let audio = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_crowd.mp3");
+audio.loop = true;
+audio.volume = 0.1;
+audio.play().catch(()=>{});
+
+/* Subtle system messages */
+let messages = [
+  "User detected...",
+  "Tracking movement...",
+  "You’ve been here before...",
+  "System watching...",
+  "Pattern recognized..."
+];
+
+setInterval(()=>{
+  document.getElementById("systemMsg").innerText =
+    messages[Math.floor(Math.random()*messages.length)];
+},4000);
+
+/* Chat */
+document.getElementById("send").onclick = send;
+
+function send(){
+  let msg = document.getElementById("input").value;
+  let key = document.getElementById("api").value;
+
+  if(!msg || !key) return;
+
+  document.getElementById("response").innerText = "Thinking...";
+
+  fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + key
+    },
+    body:JSON.stringify({
+      model:"gpt-4o-mini",
+      messages:[
+        {role:"system", content:"Kilroid is hype, Glitch is sarcastic."},
+        {role:"user", content:msg}
+      ]
+    })
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    let reply = d.choices?.[0]?.message?.content || "Glitch: broken.";
+    document.getElementById("response").innerText = reply;
+
+    let voice = new SpeechSynthesisUtterance(reply);
+    voice.volume = 0.4;
+    speechSynthesis.speak(voice);
+  })
+  .catch(()=>{
+    document.getElementById("response").innerText =
+      "Glitch: System error.";
+  });
+}
+
+/* Mouse parallax */
+document.onmousemove = (e)=>{
+  let x = (e.clientX/window.innerWidth - 0.5)*20;
+  let y = (e.clientY/window.innerHeight - 0.5)*20;
+  document.getElementById("scene").style.transform =
+    `translate(-50%,-50%) translate(${x}px, ${y}px)`;
+};
+
+</script>
+
+</body>
+</html>
